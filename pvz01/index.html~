@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<title>Learning WebGL &mdash; lesson 1</title>
+<title>WebGL &mdash; pavyzdys 1</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
 <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
@@ -37,7 +37,7 @@
         } catch (e) {
         }
         if (!gl) {
-            alert("Could not initialise WebGL, sorry :-(");
+            alert("Negaliu startuoti WebGL :-(");
         }
     }
 
@@ -119,28 +119,42 @@
     function initBuffers() {
         triangleVertexPositionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+
+       
         var vertices = [
-             0.0,  1.0,  0.0,
-            -1.0, -1.0,  0.0,
+//              0.0,  0.0,  0.0
+ /*           -1.0, -1.0,  0.0,
              1.0, -1.0,  0.0,
              2.0, 1.0,  0.0
-             
+             */
              
         ];
+        
+        for(var fi=0;fi<6.28;fi+=0.1){
+           
+           vertices.push(Math.cos(fi));
+           vertices.push(Math.sin(fi));
+           vertices.push(1);
+        
+        }
+           
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
         triangleVertexPositionBuffer.itemSize = 3;
-        triangleVertexPositionBuffer.numItems = 4;
+        triangleVertexPositionBuffer.numItems = vertices.length / 3;
 
         squareVertexPositionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
         vertices = [
-             1.0,  1.0,  0.0,
-            -1.0,  1.0,  0.0,
-             0.0,  0.0,  0.0,
-            -1.0, -1.0,  0.0,          
-             1.0, -1.0,  0.0
+             1.0,  1.0,  1.0,
+            -1.0,  1.0,  1.0,
+             0.0,  0.0,  1.0,
+            -1.0, -1.0,  1.0,          
+             1.0, -1.0,  1.0
             
         ];
+        
+
+        
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
         squareVertexPositionBuffer.itemSize = 3;
         squareVertexPositionBuffer.numItems = 5;
@@ -151,11 +165,13 @@
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
-
+        //mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 10.0, pMatrix);
+        mat4.ortho(-5, 5, -5, 5, -5,5, pMatrix);
+        
+       // mat4.identity(pMatrix);  
         mat4.identity(mvMatrix);
 
-        mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
+        mat4.translate(mvMatrix, [-1.5, 0.0, 0.0]);
         gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
         setMatrixUniforms();

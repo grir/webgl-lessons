@@ -63,8 +63,11 @@
             }
             k = k.nextSibling;
         }
-
+        
+        console.log(str);
+          
         var shader;
+        // WebGLShader? createShader(GLenum type)
         if (shaderScript.type == "x-shader/x-fragment") {
             shader = gl.createShader(gl.FRAGMENT_SHADER);
         } else if (shaderScript.type == "x-shader/x-vertex") {
@@ -72,10 +75,12 @@
         } else {
             return null;
         }
-
+        
+        // void shaderSource(WebGLShader? shader, DOMString source)
         gl.shaderSource(shader, str);
+        // void compileShader(WebGLShader? shader)
         gl.compileShader(shader);
-
+        // ar sukompiliavo? 
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             alert(gl.getShaderInfoLog(shader));
             return null;
@@ -85,23 +90,26 @@
     }
 
 
-    var shaderProgram;
+    var shaderProgram;  // globalus 
 
     function initShaders() {
+        // Pakrauname ir kompiliuojame šeiderius
         var fragmentShader = getShader(gl, "shader-fs");
         var vertexShader = getShader(gl, "shader-vs");
 
+        // WebGLProgram? createProgram() 
         shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
+        //void linkProgram(WebGLProgram? program)
         gl.linkProgram(shaderProgram);
 
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-            alert("Could not initialise shaders");
+            alert("Negaliu rasti prijungtų šeiderių");
         }
 
         gl.useProgram(shaderProgram);
-
+        // Nustatome "ryšius" su GPU šeiderių atribūtais    
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
@@ -117,6 +125,7 @@
     var pMatrix = mat4.create();
 
     function setMatrixUniforms() {
+      // void uniformMatrix4fv(WebGLUniformLocation? location, GLboolean transpose, Float32Array value);
         gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
         gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
     }
@@ -127,17 +136,22 @@
     var squareVertexPositionBuffer;
     var squareVertexColorBuffer;
 
-    function initBuffers() {
-        triangleVertexPositionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+    function initBuffers() {  // buferis čia yra masyvas atmintyje, 
+                              // kuris apibūdina koordinates ir spalvas
+        // WebGLBuffer? createBuffer() 
+        triangleVertexPositionBuffer = gl.createBuffer();     // pirmiausia reikia sukurti
+        // void bindBuffer(GLenum target, WebGLBuffer? buffer)
+        gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer); // "aprašyti" buferio paskirti
         var vertices = [
              0.0,  1.0,  0.0,
             -1.0, -1.0,  0.0,
              1.0, -1.0,  0.0
         ];
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        triangleVertexPositionBuffer.itemSize = 3;
-        triangleVertexPositionBuffer.numItems = 3;
+        // void bufferData(GLenum target, GLsizeiptr size, GLenum usage)
+        // void bufferData(GLenum target, BufferDataSource? data, GLenum usage)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW); // prijungti duomenis
+        triangleVertexPositionBuffer.itemSize = 3;    // 3 koordinatės
+        triangleVertexPositionBuffer.numItems = 3;    // 3 viršūnės
 
         triangleVertexColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
@@ -147,8 +161,8 @@
             0.0, 0.0, 1.0, 1.0
         ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-        triangleVertexColorBuffer.itemSize = 4;
-        triangleVertexColorBuffer.numItems = 3;
+        triangleVertexColorBuffer.itemSize = 4;  // 4 spalvos komponentės 
+        triangleVertexColorBuffer.numItems = 3;  // trims viršūnėms
 
 
         squareVertexPositionBuffer = gl.createBuffer();
@@ -179,19 +193,29 @@
     function drawScene() {
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+        // iš  matricų bibliotekos
         mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
 
         mat4.identity(mvMatrix);
 
         mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
+        
+ 
+        
+        // void bindBuffer(GLenum target, WebGLBuffer? buffer)
         gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+        // void vertexAttribPointer(
+        // GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLintptr offset)
+
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
+
+
         gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, triangleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         setMatrixUniforms();
+        // void drawArrays(GLenum mode, GLint first, GLsizei count)
         gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
 
         mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);

@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<title>Learning WebGL &mdash; lesson 5</title>
+<title>WebGL &mdash; pavyzdys 5</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
 <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
@@ -118,11 +118,47 @@
         shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
     }
 
+ ////////////////////////////////////////////////////////////////////////// 
 
     function handleLoadedTexture(texture) {
+        // void glBindTexture(	GLenum target , 	GLuint texture);
+        //  target: TEXTURE_2D, TEXTURE_CUBE_MAP 
+        //  apie TEXTURE_CUBE_MAP:
+        //   http://www.c-jump.com/bcc/common/Talk3/OpenGL/Wk13_skybox/Wk13_skybox.html
+        //  texture: vardas 
         gl.bindTexture(gl.TEXTURE_2D, texture);
+        // "Kaip skaityti pikselius iš paveikslėlio"
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // C kalboje:
+        //void glTexImage2D(	
+        //  GLenum target,
+        //	GLint level,  -> https://en.wikipedia.org/wiki/Mipmap
+        //	GLint internalformat,  -> vidinis formatas
+        //	GLsizei width,
+        //	GLsizei height,
+        //	GLint border,
+        //	GLenum format, -> panaudojimo formatas
+        //	GLenum type, -> tipas
+        //	const GLvoid * data  -> nuoroda (rodyklė) į vaizdo duomenys
+        // );
+        // Kaip adaptuota į WebGL:
+        // 
+        // void texImage2D(
+        // enum target, 
+        // int level, 
+        // enum internalformat, 
+        // enum format, 
+        // enum type, -> UNSIGNED_BYTE, UNSIGNED_SHORT_5_6_5,
+        //               UNSIGNED_SHORT_4_4_4_4, UNSIGNED_SHORT_5_5_5_1
+        // Object object -> object: pixels of type ImageData, 
+        //                          image of type HTMLImageElement,
+        //                          canvas of type HTMLCanvasElement,
+        //                          video of type HTMLVideoElement
+        // )
+     
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        
+        
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.bindTexture(gl.TEXTURE_2D, null);

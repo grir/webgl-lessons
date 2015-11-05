@@ -158,9 +158,29 @@
      
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
         
-        
+        // C specifikacija:
+        // void glTexParameteriv(	
+        //    GLenum target, -> aktyvios tekstūros paskirtis (pvz., GL_TEXTURE_2D)
+   	  //    GLenum pname,  -> parametro vardas
+ 	     //    const GLint * params -> parametro reikšmė
+ 	     // );
+ 	     //  GL_TEXTURE_MIN_FILTER: kai pikselis ant vaizduojamo paviršiaus yra didesnis negu tekstūros
+ 	     //  elementas. Galimos reikšmės 
+ 	     //   GL_NEAREST
+        //   GL_LINEAR
+        //   GL_NEAREST_MIPMAP_NEAREST
+        //   GL_LINEAR_MIPMAP_NEAREST
+        //   GL_NEAREST_MIPMAP_LINEAR
+        //   GL_LINEAR_MIPMAP_LINEAR
+ 	     //  ..................................
+ 	     //
+ 	     //
+ 	     //
+ 	     
+
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+       
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
